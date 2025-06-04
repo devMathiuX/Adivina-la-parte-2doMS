@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2doMS THE GAME</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .image-container {
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        #body-image {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        #body-image:hover {
+            transform: scale(1.02);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option-btn {
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .option-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+        }
+
+        .option-btn:active {
+            transform: translateY(0);
+        }
+
+        .option-btn.correct {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+            animation: correctPulse 0.6s ease;
+        }
+
+        .option-btn.incorrect {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            animation: shake 0.5s ease;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .feedback {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 18px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .feedback.correct {
+            background: linear-gradient(45deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 2px solid #27ae60;
+        }
+
+        .feedback.incorrect {
+            background: linear-gradient(45deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+            border: 2px solid #e74c3c;
+        }
+
+        .next-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(155, 89, 182, 0.4);
+        }
+
+        .game-over {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .restart-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #34495e, #2c3e50);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 73, 94, 0.4);
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .options-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .option-btn {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>¿De quién es esta parte del cuerpo?</h1>
+        
+        <div class="score-board">
+            <span>Puntuación: <span id="score">0</span></span>
+            <span>Pregunta: <span id="current-question">1</span> / <span id="total-questions">5</span></span>
+        </div>
+
+        <div class="image-container">
+            <img id="body-image" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iI2Y0ZjRmNCIvPgogIDx0ZXh0IHg9IjIwMCIgeT0iMTUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTgiIGZpbGw9IiM2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPgogICAgSW1hZ2VuIGRlIGVqZW1wbG8KICAgIDx0c3BhbiB4PSIyMDAiIGR5PSIyNCI+UmVlbXBsYXphIGNvbiB0dSBpbWFnZW48L3RzcGFuPgogIDwvdGV4dD4KPC9zdmc+" alt="Parte del cuerpo">
+        </div>
+
+        <div class="options-grid" id="options-container">
+            <!-- Las opciones se generarán dinámicamente -->
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()" style="display: none;">
+            Siguiente Pregunta
+        </button>
+
+        <div class="game-over" id="game-over" style="display: none;">
+            <h2>¡Juego Terminado!</h2>
+            <p>Puntuación final: <span id="final-score"></span> / <span id="final-total"></span></p>
+            <button class="restart-btn" onclick="restartGame()">Jugar de Nuevo</button>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN DEL JUEGO - PERSONALIZA AQUÍ
+        const gameData = [
+            {
+                image: "mateo.jpg",
+                correctAnswer: "Mateo",
+                options: [
+                    "Mateo", "Lucas", "Alvaro", "Franco",
+                    "Diego", "Agustin", "Thiago", "Ian",
+                    "Mauro", "Kevin", "Maui", "Benjamin"
+                ]
+            },
+            {
+                image: "lucas.jpg",
+                correctAnswer: "Lucas",
+                options: [
+                    "Mateo", "Lucas", "Alvaro", "Franco",
+                    "Diego", "Agustin", "Thiago", "Ian",
+                    "Mauro", "Kevin", "Maui", "Benjamin"
+                ]
+            },
+            {
+                image: "alvaro.jpg",
+                correctAnswer: "Alvaro",
+                options: [
+                    "Mateo", "Lucas", "Alvaro", "Franco",
+                    "Diego", "Agustin", "Thiago", "Ian",
+                    "Mauro", "Kevin", "Maui", "Benjamin"
+                ]
+            },
+            {
+                image: "franco.jpg",
+                correctAnswer: "Franco",
+                options: [
+                    "Mateo", "Lucas", "Alvaro", "Franco",
+                    "Diego", "Agustin", "Thiago", "Ian",
+                    "Mauro", "Kevin", "Maui", "Benjamin"
+                ]
+            },
+            {
+                image: "diego.jpg",
+                correctAnswer: "Diego",
+                options: [
+                    "Mateo", "Lucas", "Alvaro", "Franco",
+                    "Diego", "Agustin", "Thiago", "Ian",
+                    "Mauro", "Kevin", "Maui", "Benjamin"
+                ]
+            },
+            {
+                image: "agustin.jpg",
+                correctAnswer: "Agustin",
+                options: [
+                    "Mateo", "Lucas", "Alvaro", "Franco",
+                    "Diego", "Agustin", "Thiago", "Ian",
+                    "Mauro", "Kevin", "Maui", "Benjamin"
+                ]
+            },
+            {
+                image: "thiago.jpg",
+                correctAnswer: "Thiago",
+                options: [
+                    "Mateo", "Lucas", "Alvaro", "Franco",
+                    "Diego", "Agustin", "Thiago", "Ian",
+                    "Mauro", "Kevin", "Maui", "Benjamin"
+                ]
+            },
+            {
+                image: "ian.jpg",
+                correctAnswer: "Ian",
+                options: [
+                    "Mateo", "Lucas", "Alvaro", "Franco",
+                    "Diego", "Agustin", "Thiago", "Ian",
+                    "Mauro", "Kevin", "Maui", "Benjamin"
+                ]
+            },
+            {
+                image: "mauro.jpg",
+                correctAnswer: "Mauro",
+                options: [
+                    "Mateo", "Lucas", "Alvaro", "Franco",
+                    "Diego", "Agustin", "Thiago", "Ian",
+                    "Mauro", "Kevin", "Maui", "Benjamin"
+                ]
+            },
+            {
+                image: "kevin.jpg",
+                correctAnswer: "Kevin",
+                options: [
+                    "Mateo", "Lucas", "Alvaro", "Franco",
+                    "Diego", "Agustin", "Thiago", "Ian",
+                    "Mauro", "Kevin", "Maui", "Benjamin"
+                ]
+            },
+            {
+                image: "maui.jpg",
+                correctAnswer: "Maui",
+                options: [
+                    "Mateo", "Lucas", "Alvaro", "Franco",
+                    "Diego", "Agustin", "Thiago", "Ian",
+                    "Mauro", "Kevin", "Maui", "Benjamin"
+                ]
+            },
+            {
+                image: "benjamin.jpg",
+                correctAnswer: "Benjamin",
+                options: [
+                    "Mateo", "Lucas", "Alvaro", "Franco",
+                    "Diego", "Agustin", "Thiago", "Ian",
+                    "Mauro", "Kevin", "Maui", "Benjamin"
+                ]
+            }
+        ];
+
+        // Variables del juego
+        let currentQuestion = 0;
+        let score = 0;
+        let gameFinished = false;
+
+        // Elementos del DOM
+        const bodyImage = document.getElementById('body-image');
+        const optionsContainer = document.getElementById('options-container');
+        const feedback = document.getElementById('feedback');
+        const nextBtn = document.getElementById('next-btn');
+        const scoreElement = document.getElementById('score');
+        const currentQuestionElement = document.getElementById('current-question');
+        const totalQuestionsElement = document.getElementById('total-questions');
+        const gameOverDiv = document.getElementById('game-over');
+        const finalScoreElement = document.getElementById('final-score');
+        const finalTotalElement = document.getElementById('final-total');
+
+        // Función para mezclar array
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // Inicializar el juego
+        function initGame() {
+            totalQuestionsElement.textContent = gameData.length;
+            loadQuestion();
+        }
+
+        // Cargar pregunta actual
+        function loadQuestion() {
+            if (currentQuestion >= gameData.length) {
+                endGame();
+                return;
+            }
+
+            const questionData = gameData[currentQuestion];
+            
+            // Actualizar imagen
+            bodyImage.src = questionData.image;
+            
+            // Mezclar opciones
+            const shuffledOptions = shuffleArray(questionData.options);
+            
+            // Limpiar contenedor de opciones
+            optionsContainer.innerHTML = '';
+            
+            // Crear botones de opciones
+            shuffledOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option;
+                button.onclick = () => selectAnswer(option);
+                optionsContainer.appendChild(button);
+            });
+
+            // Actualizar contador
+            currentQuestionElement.textContent = currentQuestion + 1;
+            
+            // Limpiar feedback y ocultar botón siguiente
+            feedback.textContent = '';
+            feedback.className = 'feedback';
+            nextBtn.style.display = 'none';
+        }
+
+        // Seleccionar respuesta
+        function selectAnswer(selectedAnswer) {
+            const questionData = gameData[currentQuestion];
+            const isCorrect = selectedAnswer === questionData.correctAnswer;
+            
+            // Deshabilitar todos los botones
+            const buttons = optionsContainer.querySelectorAll('.option-btn');
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === questionData.correctAnswer) {
+                    btn.classList.add('correct');
+                } else if (btn.textContent === selectedAnswer && !isCorrect) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            // Mostrar feedback
+            if (isCorrect) {
+                score++;
+                scoreElement.textContent = score;
+                feedback.textContent = '¡Correcto! 🎉';
+                feedback.className = 'feedback correct';
+            } else {
+                feedback.textContent = `Incorrecto. La respuesta correcta era: ${questionData.correctAnswer}`;
+                feedback.className = 'feedback incorrect';
+            }
+
+            // Mostrar botón siguiente
+            nextBtn.style.display = 'inline-block';
+        }
+
+        // Siguiente pregunta
+        function nextQuestion() {
+            currentQuestion++;
+            loadQuestion();
+        }
+
+        // Terminar juego
+        function endGame() {
+            gameFinished = true;
+            finalScoreElement.textContent = score;
+            finalTotalElement.textContent = gameData.length;
+            gameOverDiv.style.display = 'block';
+            
+            // Ocultar elementos del juego
+            document.querySelector('.image-container').style.display = 'none';
+            optionsContainer.style.display = 'none';
+            feedback.style.display = 'none';
+            nextBtn.style.display = 'none';
+        }
+
+        // Reiniciar juego
+        function restartGame() {
+            currentQuestion = 0;
+            score = 0;
+            gameFinished = false;
+            
+            // Actualizar puntuación
+            scoreElement.textContent = score;
+            
+            // Mostrar elementos del juego
+            document.querySelector('.image-container').style.display = 'block';
+            optionsContainer.style.display = 'grid';
+            feedback.style.display = 'flex';
+            gameOverDiv.style.display = 'none';
+            
+            // Cargar primera pregunta
+            loadQuestion();
+        }
+
+        // Inicializar el juego cuando se carga la página
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>
